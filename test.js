@@ -24,7 +24,16 @@ assert.strictEqual(e.food.n, 'Cơm trắng'); assert.strictEqual(e.g, 100);
 assert.strictEqual(parseEntry('ức gà 150', FOODS).food.n, 'Ức gà');
 assert.strictEqual(parseEntry('200 g khoai lang', FOODS).g, 200);
 assert.strictEqual(parseEntry('com trang 50', FOODS).food.n, 'Cơm trắng');
-assert.strictEqual(parseEntry('100g pizza', FOODS), null);
+assert.strictEqual(parseEntry('100g abcxyz', FOODS), null);
+assert.strictEqual(parseEntry('200 cải xanh', FOODS).food.n, 'Cải xanh'); // "cải" không bị hiểu là đơn vị "cái"
+assert.strictEqual(parseEntry('200 cải xanh', FOODS).g, 200);
+assert.strictEqual(parseEntry('2 gỏi cuốn', FOODS).g, 200);
+assert.strictEqual(parseEntry('1 lon bia', FOODS).g, 330);
+assert.strictEqual(parseEntry('2 cái bánh bao', FOODS).g, 300);
+assert.strictEqual(parseEntry('1 tô bún riêu', FOODS).food.n, 'Bún riêu');
+assert.strictEqual(parseEntry('1 ly trà', FOODS).food.n, 'Trà đá');
+assert.strictEqual(parseEntry('1 hộp sữa', FOODS).food.n, 'Sữa tươi không đường');
+assert.strictEqual(parseEntry('1 đĩa bò né', FOODS), null); // không khớp nhầm "Bơ" -> để AI xử lý
 assert.strictEqual(parseEntry('2 chén cơm', FOODS).g, 300);
 assert.strictEqual(parseEntry('1 bát cơm', FOODS).g, 150);
 assert.strictEqual(parseEntry('trứng 2 quả', FOODS).g, 100);
@@ -46,4 +55,27 @@ const shop = shoppingList(menu);
 const totalG = menu.flat().flatMap((m) => m.items).reduce((s, x) => s + x.g, 0);
 assert.strictEqual(shop.reduce((s, [, g]) => s + g, 0), totalG);
 assert.strictEqual(burn(8, 75, 30), 300);
+
+// danh sách món: không trùng tên, số liệu hợp lý, đơn vị hợp lệ
+const { aiToFood } = require('./app.js');
+const names = FOODS.map((f) => f.n.toLowerCase());
+assert.strictEqual(new Set(names).size, names.length, 'trùng tên món');
+const UNITS = ['chen', 'to', 'qua', 'o', 'ly', 'hop', 'mieng', 'dia', 'cu', 'cai', 'goi', 'lon', 'chai', 'cuon', 'phan', 'lat', 'muong', 'thanh', 'mui'];
+for (const f of FOODS) {
+  assert.ok(f.k >= 0 && f.k <= 900 && f.p >= 0 && f.p < 100, f.n);
+  assert.ok(['carb', 'protein', 'veg', 'fruit', 'other'].includes(f.c), f.n);
+  for (const u of Object.keys(f.u || {})) assert.ok(UNITS.includes(u), `${f.n}: đơn vị ${u}`);
+}
+
+// AI: chỉ nhận số liệu hợp lý
+const okAI = { is_food: true, name: 'Bò né', kcal_per_100g: 210, protein_per_100g: 15, category: 'other', grams_eaten: 350, unit: 'dia', unit_grams: 350 };
+const a = aiToFood(okAI);
+assert.deepStrictEqual(a.food, { n: 'Bò né', k: 210, p: 15, c: 'other', ai: 1, u: { dia: 350 } });
+assert.strictEqual(a.g, 350); assert.strictEqual(a.label, '1 đĩa');
+assert.strictEqual(aiToFood({ ...okAI, unit: 'g', unit_grams: 100 }).food.u, undefined);
+assert.ok(aiToFood({ ...okAI, is_food: false }).err);
+assert.ok(aiToFood({ ...okAI, kcal_per_100g: 5000 }).err);
+assert.ok(aiToFood({ ...okAI, grams_eaten: -1 }).err);
+assert.ok(aiToFood({ ...okAI, category: 'hack' }).err);
+assert.ok(aiToFood(null).err);
 console.log('OK');

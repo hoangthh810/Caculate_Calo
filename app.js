@@ -1,46 +1,12 @@
-// k = kcal/100g, p = protein g/100g, e=1: món dễ mua (dùng để gợi ý / bù khi thiếu nhóm), u = gram cho 1 đơn vị.
-// shortcut: số liệu là giá trị trung bình tham khảo, muốn chính xác hơn thì sửa tay trong danh sách này.
-const FOODS = [
-  { n: 'Cơm trắng', k: 130, p: 2.7, c: 'carb', e: 1, u: { chen: 150 } },
-  { n: 'Cơm gạo lứt', k: 111, p: 2.6, c: 'carb', e: 1, u: { chen: 150 } },
-  { n: 'Bún tươi', k: 110, p: 1.7, c: 'carb', e: 1 },
-  { n: 'Bánh phở', k: 140, p: 2.5, c: 'carb' },
-  { n: 'Khoai lang luộc', k: 86, p: 1.6, c: 'carb', e: 1, u: { cu: 150 } },
-  { n: 'Bắp (ngô) luộc', k: 96, p: 3.4, c: 'carb', e: 1, u: { qua: 150 } },
-  { n: 'Yến mạch', k: 389, p: 13, c: 'carb' },
-  { n: 'Bánh mì', k: 265, p: 9, c: 'carb', e: 1, u: { o: 80 } },
-  { n: 'Ức gà', k: 165, p: 31, c: 'protein', e: 1 },
-  { n: 'Trứng gà', k: 155, p: 13, c: 'protein', e: 1, u: { qua: 50 } },
-  { n: 'Đậu phụ', k: 76, p: 8, c: 'protein', e: 1, u: { mieng: 100 } },
-  { n: 'Thịt heo nạc', k: 143, p: 21, c: 'protein', e: 1 },
-  { n: 'Thịt bò nạc', k: 187, p: 26, c: 'protein' },
-  { n: 'Cá basa', k: 100, p: 15, c: 'protein', e: 1 },
-  { n: 'Tôm', k: 99, p: 24, c: 'protein' },
-  { n: 'Cá hồi', k: 208, p: 20, c: 'protein' },
-  { n: 'Rau muống', k: 19, p: 3, c: 'veg', e: 1 },
-  { n: 'Cải xanh', k: 15, p: 2.6, c: 'veg', e: 1 },
-  { n: 'Bông cải xanh', k: 34, p: 2.8, c: 'veg' },
-  { n: 'Bắp cải', k: 25, p: 1.3, c: 'veg', e: 1 },
-  { n: 'Dưa leo', k: 15, p: 0.7, c: 'veg', e: 1, u: { qua: 200 } },
-  { n: 'Cà chua', k: 18, p: 0.9, c: 'veg', e: 1, u: { qua: 100 } },
-  { n: 'Chuối', k: 89, p: 1.1, c: 'fruit', e: 1, u: { qua: 120 } },
-  { n: 'Táo', k: 52, p: 0.3, c: 'fruit', u: { qua: 180 } },
-  { n: 'Cam', k: 47, p: 0.9, c: 'fruit', e: 1, u: { qua: 200 } },
-  { n: 'Ổi', k: 68, p: 2.6, c: 'fruit', e: 1, u: { qua: 200 } },
-  { n: 'Dưa hấu', k: 30, p: 0.6, c: 'fruit', u: { mieng: 250 } },
-  { n: 'Sữa chua không đường', k: 60, p: 3.5, c: 'fruit', e: 1, u: { hop: 100 } },
-  { n: 'Sữa tươi không đường', k: 42, p: 3.2, c: 'other', u: { hop: 180, ly: 240 } },
-  { n: 'Hạt điều', k: 553, p: 18, c: 'other' },
-  { n: 'Phở bò', k: 75, p: 5, c: 'other', u: { to: 500 } },
-  { n: 'Bún bò', k: 80, p: 5, c: 'other', u: { to: 550 } },
-  { n: 'Cơm tấm sườn', k: 200, p: 10, c: 'other', u: { dia: 400 } },
-  { n: 'Bánh mì thịt', k: 250, p: 10, c: 'other', u: { o: 200 } },
-  { n: 'Trà sữa', k: 70, p: 0.5, c: 'other', u: { ly: 500 } },
-];
+// Danh sách món nằm ở foods.js (trình duyệt nạp bằng thẻ <script> trước file này).
+if (typeof module !== 'undefined') var FOODS = require('./foods.js');
 const CATS = { carb: 'Tinh bột', protein: 'Đạm', veg: 'Rau', fruit: 'Trái cây / bữa phụ', other: 'Món khác (chỉ để ghi nhật ký)' };
 const MEALS = [['Sáng', 0.25, ['protein', 'carb']], ['Trưa', 0.35, ['veg', 'protein', 'carb']], ['Phụ', 0.1, ['fruit']], ['Tối', 0.3, ['veg', 'protein', 'carb']]];
-const UNIT_NAMES = { chen: 'chén', to: 'tô', qua: 'quả', o: 'ổ', ly: 'ly', hop: 'hộp', mieng: 'miếng', dia: 'đĩa', cu: 'củ' };
-const UNIT_ALIAS = { bat: 'chen', trai: 'qua', coc: 'ly' };
+const UNIT_NAMES = {
+  chen: 'chén', to: 'tô', qua: 'quả', o: 'ổ', ly: 'ly', hop: 'hộp', mieng: 'miếng', dia: 'đĩa', cu: 'củ', cai: 'cái', goi: 'gói',
+  lon: 'lon', chai: 'chai', cuon: 'cuốn', phan: 'phần', lat: 'lát', muong: 'muỗng', thanh: 'thanh', mui: 'múi',
+};
+const UNIT_ALIAS = { bat: 'chen', trai: 'qua', coc: 'ly', chiec: 'cai', suat: 'phan', thia: 'muong' };
 const GRAM = ['g', 'gr', 'gram'];
 const UNIT_WORDS = [...GRAM, ...Object.keys(UNIT_NAMES), ...Object.keys(UNIT_ALIAS)];
 const EXERCISES = [['Đi bộ', 3.5], ['Đi bộ nhanh', 4.3], ['Chạy bộ', 8], ['Đạp xe', 6], ['Bơi', 6], ['Tập gym', 5], ['Nhảy dây', 11], ['Yoga', 2.5], ['Đá bóng', 7], ['Cầu lông', 5.5]]; // [tên, MET]
@@ -99,33 +65,121 @@ function shoppingList(menu) {
   return Object.entries(tot).sort((a, b) => b[1] - a[1]);
 }
 
-const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').trim();
+const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/\s+/g, ' ').trim();
 
-function findFood(q, foods) {
+const lower = (s) => s.toLowerCase().normalize('NFC').replace(/\s+/g, ' ').trim();
+
+// Gõ có dấu thì so cả dấu ("bò né" không khớp nhầm "Bơ"); so theo nguyên từ, không theo chuỗi con.
+function findFood(q, foods, accented) {
   if (!q) return null;
-  const by = (fn) => foods.find((f) => fn(norm(f.n)));
-  return by((n) => n === q) || by((n) => n.startsWith(q)) || by((n) => n.includes(q)) ||
-    foods.filter((f) => q.includes(norm(f.n))).sort((a, b) => b.n.length - a.n.length)[0] || null;
+  const key = accented ? lower : norm;
+  const by = (fn) => foods.find((f) => fn(key(f.n)));
+  const has = (a, b) => ` ${a} `.includes(` ${b} `);
+  return by((n) => n === q) || by((n) => n.startsWith(`${q} `)) || by((n) => has(n, q)) ||
+    // câu gõ chứa nguyên tên món, chỉ xét tên từ 2 chữ trở lên ("bún riêu cua" -> "Bún riêu")
+    foods.filter((f) => key(f.n).includes(' ') && has(q, key(f.n))).sort((a, b) => b.n.length - a.n.length)[0] ||
+    (accented ? findFood(norm(q), foods, false) : null);
 }
 
 // "100g cơm", "2 chén cơm", "trứng 2 quả", "1 tô phở" -> { food, g, label } | { food, err } | null
 function parseEntry(text, foods) {
-  const w = norm(text).replace(/(\d),(\d)/g, '$1.$2').replace(/(\d)([a-z])/g, '$1 $2').split(/\s+/).filter(Boolean);
+  const t = lower(text).replace(/(\d),(\d)/g, '$1.$2').replace(/(\d)(?=[^\d\s.])/g, '$1 ');
+  const accented = norm(t) !== t;
+  const cmp = accented ? lower : norm;
+  const w = t.split(' ');
   const i = w.findIndex((x) => /^\d+(\.\d+)?$/.test(x));
   if (i < 0) return null;
   const qty = parseFloat(w.splice(i, 1)[0]);
-  let unit = UNIT_WORDS.includes(w[i]) ? w.splice(i, 1)[0] : null;
-  const food = findFood(w.join(' '), foods);
+  // chữ sau số là đơn vị, trừ khi nó là chữ đầu tên món ("200 cải xanh" ≠ 200 cái)
+  const tail = w.slice(i).join(' ');
+  let unit = UNIT_WORDS.includes(norm(w[i] || '')) && !foods.some((f) => cmp(f.n).startsWith(tail)) ? norm(w.splice(i, 1)[0]) : null;
+  const food = findFood(w.join(' '), foods, accented);
   if (!food || !(qty > 0)) return null;
   if (!unit && qty < 10 && food.u) unit = Object.keys(food.u)[0]; // "2 trứng" = 2 quả, không phải 2g
   if (!unit || GRAM.includes(unit)) return { food, g: Math.round(qty) };
-  const key = UNIT_ALIAS[unit] || unit;
+  const keys = unit === 'bat' ? ['chen', 'to'] : [UNIT_ALIAS[unit] || unit]; // "bát phở" = tô phở
+  const key = keys.find((k) => food.u && food.u[k]) || keys[0];
   const per = food.u && food.u[key];
   if (!per) return { food, err: `"${food.n}" chưa có đơn vị "${UNIT_NAMES[key]}", hãy nhập theo gram (vd: 200g ${food.n.toLowerCase()}).` };
   return { food, g: Math.round(qty * per), label: `${qty} ${UNIT_NAMES[key]}` };
 }
 
-if (typeof module !== 'undefined') module.exports = { tdee, plan, buildMenu, shoppingList, parseEntry, burn, addDays, FOODS };
+// ---------------- AI: ước lượng món chưa có trong danh sách ----------------
+const AI_MODELS = { 'claude-opus-5-5': 'Claude Opus 5.5 (chính xác hơn)', 'claude-haiku-5-5': 'Claude Haiku 5.5 (rẻ hơn nhiều)' };
+const AI_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['is_food', 'name', 'kcal_per_100g', 'protein_per_100g', 'category', 'grams_eaten', 'unit', 'unit_grams'],
+  properties: {
+    is_food: { type: 'boolean' },
+    name: { type: 'string' },
+    kcal_per_100g: { type: 'number' },
+    protein_per_100g: { type: 'number' },
+    category: { type: 'string', enum: Object.keys(CATS) },
+    grams_eaten: { type: 'number' },
+    unit: { type: 'string', enum: ['g', ...Object.keys(UNIT_NAMES)] },
+    unit_grams: { type: 'number' },
+  },
+};
+const AI_SYSTEM = `Bạn là chuyên gia dinh dưỡng Việt Nam. Người dùng gõ món họ vừa ăn hoặc uống, có thể kèm số lượng và đơn vị, có thể gõ không dấu. Trả về:
+- is_food: false nếu nội dung không phải đồ ăn/thức uống.
+- name: tên món chuẩn tiếng Việt có dấu, ngắn gọn, không kèm số lượng.
+- kcal_per_100g, protein_per_100g: theo món như khi ăn thực tế ở Việt Nam (món nước tính cả nước dùng).
+- grams_eaten: tổng số gram đã ăn; nếu người dùng không nói số lượng thì lấy 1 khẩu phần thông thường.
+- unit, unit_grams: đơn vị khẩu phần thông dụng của món và số gram của 1 đơn vị. Mã đơn vị: ${Object.entries(UNIT_NAMES).map(([k, v]) => `${k}=${v}`).join(', ')}; dùng g và 100 nếu món không có đơn vị quen thuộc.
+- category: carb/protein/veg/fruit chỉ cho nguyên liệu đơn giản (cơm, thịt/cá luộc, rau, trái cây); món chế biến, đồ uống, bánh kẹo dùng other.`;
+
+// Kiểm tra số liệu AI trả về trước khi lưu (không tin mù quáng).
+function aiToFood(r) {
+  const num = (x, lo, hi) => typeof x === 'number' && isFinite(x) && x >= lo && x <= hi;
+  if (!r || r.is_food !== true) return { err: 'AI cho rằng đây không phải món ăn hoặc đồ uống.' };
+  const name = String(r.name || '').trim().slice(0, 60);
+  if (!name || !num(r.kcal_per_100g, 0, 900) || !num(r.protein_per_100g, 0, 100) || !num(r.grams_eaten, 1, 5000) || !CATS[r.category]) {
+    return { err: 'AI trả về số liệu không hợp lý, hãy thử ghi rõ hơn.' };
+  }
+  const food = { n: name, k: Math.round(r.kcal_per_100g), p: Math.round(r.protein_per_100g * 10) / 10, c: r.category, ai: 1 };
+  if (r.unit !== 'g' && UNIT_NAMES[r.unit] && num(r.unit_grams, 1, 3000)) food.u = { [r.unit]: Math.round(r.unit_grams) };
+  const g = Math.round(r.grams_eaten);
+  const per = food.u && food.u[r.unit];
+  return { food, g, label: per && g % per === 0 ? `${g / per} ${UNIT_NAMES[r.unit]}` : undefined };
+}
+
+async function askAI(text, key, model) {
+  const opus = model.startsWith('claude-opus');
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2026-10-21',
+        'anthropic-dangerous-direct-browser-access': 'true', // gọi thẳng từ trình duyệt; key chỉ nằm trong máy bạn
+        ...(opus && { 'anthropic-beta': 'server-side-fallback-2026-07-01' }),
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 4000,
+        ...(opus && { fallbacks: 'default' }), // nếu bị bộ lọc an toàn từ chối thì tự chạy lại bằng model khác
+        output_config: { effort: 'low', format: { type: 'json_schema', schema: AI_SCHEMA } },
+        system: AI_SYSTEM,
+        messages: [{ role: 'user', content: text }],
+      }),
+    });
+  } catch {
+    return { err: 'Không kết nối được tới AI, kiểm tra mạng.' };
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = { 401: 'API key không đúng, kiểm tra lại ở mục 8.', 429: 'Gọi AI quá nhiều, đợi một chút rồi thử lại.' }[res.status];
+    return { err: msg || `Lỗi AI (${res.status}): ${(data.error && data.error.message) || 'không rõ'}` };
+  }
+  if (data.stop_reason === 'refusal') return { err: 'AI từ chối trả lời yêu cầu này.' };
+  const block = (data.content || []).find((b) => b.type === 'text');
+  try { return aiToFood(JSON.parse(block.text)); } catch { return { err: 'AI trả lời không đúng định dạng, thử lại nhé.' }; }
+}
+
+if (typeof module !== 'undefined') module.exports = { tdee, plan, buildMenu, shoppingList, parseEntry, aiToFood, burn, addDays, FOODS };
 
 // ---------------- UI ----------------
 if (typeof document !== 'undefined') {
@@ -250,6 +304,9 @@ if (typeof document !== 'undefined') {
         ${allFoods().filter((f) => f.c === c).map((f) => `<label class="chip"><input type="checkbox" value="${esc(f.n)}" ${sel.has(f.n) ? 'checked' : ''}> ${esc(f.n)} <small>${f.k}</small></label>`).join('')}
       </fieldset>`).join('');
     $('foodNames').innerHTML = allFoods().map((f) => `<option value="${esc(f.n)}">`).join('');
+    $('customList').innerHTML = state.custom.length
+      ? '<h3>Món đã thêm</h3><ul class="compact">' + state.custom.map((f, i) => `<li><span>${f.ai ? '🤖 ' : ''}${esc(f.n)} <small class="muted">${CATS[f.c] || ''}</small></span><span>${f.k} kcal · ${f.p || 0}g protein /100g <button class="x" data-ci="${i}" aria-label="Xoá món ${esc(f.n)}">✕</button></span></li>`).join('') + '</ul><p class="hint">🤖 = AI ước lượng. Thấy sai thì xoá rồi tự thêm lại với số đúng.</p>'
+      : '';
   }
 
   function renderMenu() {
@@ -300,11 +357,46 @@ if (typeof document !== 'undefined') {
   $('meal').value = h < 10 ? 'Sáng' : h < 14 ? 'Trưa' : h < 17 ? 'Phụ' : 'Tối';
   $('logDate').addEventListener('change', (e) => { if (e.target.value) { view = e.target.value; renderLog(); } });
 
-  $('logForm').addEventListener('submit', (e) => {
+  const AI_KEY = 'calo-ai'; // để riêng, không nằm trong file sao lưu
+  const loadAI = () => { try { return JSON.parse(localStorage.getItem(AI_KEY)) || {}; } catch { return {}; } };
+  const ai = Object.assign({ key: '', model: 'claude-opus-5-5' }, loadAI());
+  $('aiModel').innerHTML = Object.entries(AI_MODELS).map(([id, label]) => `<option value="${id}">${label}</option>`).join('');
+  const renderAI = () => {
+    $('aiModel').value = ai.model;
+    $('aiKey').value = '';
+    $('aiKey').placeholder = ai.key ? `Đã lưu key …${ai.key.slice(-4)}` : 'Dán API key (sk-ant-...)';
+    $('aiStatus').textContent = ai.key ? '✅ AI đang bật: món không có trong danh sách sẽ được AI tính.' : 'AI đang tắt.';
+  };
+  const saveAI = () => { try { localStorage.setItem(AI_KEY, JSON.stringify(ai)); } catch { alert('Không lưu được cài đặt AI.'); } renderAI(); };
+  $('aiForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const r = parseEntry($('entry').value, allFoods());
-    if (!r || r.err) { $('entryErr').textContent = r ? r.err : 'Không hiểu. Ví dụ: "100g cơm", "2 chén cơm", "1 tô phở". Món chưa có thì thêm ở mục "Món của tôi".'; return; }
-    $('entryErr').textContent = '';
+    const k = $('aiKey').value.trim();
+    if (k) ai.key = k;
+    ai.model = $('aiModel').value;
+    saveAI();
+  });
+  $('aiClear').addEventListener('click', () => { ai.key = ''; saveAI(); });
+  renderAI();
+
+  $('logForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = $('entry').value.trim();
+    if (!text) return;
+    $('entryErr').textContent = $('entryInfo').textContent = '';
+    let r = parseEntry(text, allFoods());
+    if (!r && !ai.key) { $('entryErr').textContent = 'Không có trong danh sách. Ví dụ cách gõ: "100g cơm", "2 chén cơm", "1 tô phở". Thêm món ở mục 5, hoặc bật AI ở mục 8 để AI tự tính.'; return; }
+    if (!r) {
+      const btn = $('logForm').querySelector('button');
+      btn.disabled = true; btn.textContent = '🤖 Đang hỏi AI…';
+      r = await askAI(text, ai.key, ai.model);
+      btn.disabled = false; btn.textContent = 'Thêm';
+      if (!r.err) {
+        const known = allFoods().find((f) => norm(f.n) === norm(r.food.n));
+        if (known) r.food = known;
+        else { state.custom.push(r.food); $('entryInfo').textContent = `🤖 AI đã thêm "${r.food.n}" (${r.food.k} kcal/100g) vào danh sách. Lần sau gõ tên này là tính ngay, không cần hỏi lại.`; }
+      }
+    }
+    if (r.err) { $('entryErr').textContent = r.err; return; }
     (state.log[view] ||= []).push({ ...item(r.food, r.g, r.label), meal: $('meal').value });
     $('entry').value = '';
     refresh();
@@ -372,6 +464,14 @@ if (typeof document !== 'undefined') {
     state.custom.push({ n, k, p, c: $('cCat').value });
     if ($('cCat').value !== 'other') state.selected.push(n);
     e.target.reset();
+    save(); renderFoods(); renderMenu();
+  });
+
+  $('customList').addEventListener('click', (e) => {
+    const i = e.target.dataset.ci;
+    if (i === undefined) return;
+    const [f] = state.custom.splice(+i, 1);
+    state.selected = state.selected.filter((n) => n !== f.n);
     save(); renderFoods(); renderMenu();
   });
 

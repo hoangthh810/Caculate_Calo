@@ -122,8 +122,9 @@
       <button class="primary" type="submit">Thêm</button>
     </form>
     <datalist id="foodNames"></datalist>
-    <p class="hint">Đơn vị hiểu được: g, chén/bát, tô, quả/trái, ổ, ly/cốc, hộp, miếng, đĩa, củ.</p>
+    <p class="hint">Có sẵn gần 200 món. Đơn vị hiểu được: g, chén/bát, tô, quả/trái, ổ, ly/cốc, hộp, miếng, đĩa, củ, cái, gói, lon, chai, cuốn, phần, lát, muỗng, thanh, múi.</p>
     <p id="entryErr" class="err" role="alert"></p>
+    <p id="entryInfo" class="ok" role="status" style="font-size:13px;margin:0"></p>
     <div id="logSummary"></div>
     <ul id="logList"></ul>
 
@@ -158,6 +159,7 @@
       </select>
       <button type="submit">+ Thêm món</button>
     </form>
+    <div id="customList"></div>
   </section>
 
   <section>
@@ -176,7 +178,20 @@
       <label class="file">⬆️ Khôi phục từ file<input id="importFile" type="file" accept=".json,application/json"></label>
     </div>
   </section>
+
+  <section>
+    <h2>8. AI tính món lạ</h2>
+    <p class="muted">Khi bạn gõ món không có trong danh sách, AI (Claude) sẽ ước lượng calo rồi tự thêm món đó vào danh sách. Cần API key lấy ở <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> (phải nạp tiền, mỗi lần hỏi tốn rất ít). Key chỉ lưu trong trình duyệt này và không nằm trong file sao lưu.</p>
+    <form id="aiForm" class="row">
+      <input id="aiKey" type="password" autocomplete="off" aria-label="API key">
+      <select id="aiModel" aria-label="Model AI"></select>
+      <button class="primary" type="submit">Lưu</button>
+      <button id="aiClear" type="button">Xoá key</button>
+    </form>
+    <p id="aiStatus" class="hint"></p>
+  </section>
 </main>
+<script src="foods.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
