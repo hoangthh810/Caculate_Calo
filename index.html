@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tính Calo Giảm Cân</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>">
 <style>
-  :root { --bg:#f5f7f4; --card:#fff; --text:#1f2a24; --muted:#6b7a71; --accent:#2f8f5b; --accent-soft:#e3f3ea; --bad:#c94a3a; --line:#e2e8e4; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#141a17; --card:#1d2521; --text:#e6ece8; --muted:#93a39a; --accent:#5cc28a; --accent-soft:#22372b; --bad:#f07a6a; --line:#2d3832; } }
+  :root { --bg:#f5f7f4; --card:#fff; --text:#1f2a24; --muted:#6b7a71; --accent:#2f8f5b; --accent-soft:#e3f3ea; --bad:#c94a3a; --plan:#d39b2a; --line:#e2e8e4; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141a17; --card:#1d2521; --text:#e6ece8; --muted:#93a39a; --accent:#5cc28a; --accent-soft:#22372b; --bad:#f07a6a; --plan:#e5b452; --line:#2d3832; } }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width:900px; margin:0 auto; padding:16px; }
@@ -19,8 +20,9 @@
   input, select, button { font:inherit; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
   button { cursor:pointer; }
   button.primary { background:var(--accent); color:#fff; border:0; font-weight:600; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-  .row input { flex:1; min-width:160px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+  .row input { flex:1; min-width:140px; }
+  .row input.short { flex:0 1 120px; min-width:90px; }
   .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-top:12px; }
   .stats div { background:var(--bg); border-radius:10px; padding:10px; text-align:center; }
   .stats b { display:block; font-size:22px; }
@@ -31,10 +33,15 @@
   .bar i { display:block; height:100%; background:var(--accent); }
   .bar i.over { background:var(--bad); }
   .warn { color:var(--bad); }
+  .ok { color:var(--accent); }
   .muted { color:var(--muted); }
+  .hint { color:var(--muted); font-size:13px; margin:6px 0 0; }
   .err { color:var(--bad); font-size:13px; min-height:1em; margin:6px 0 0; }
   ul { list-style:none; padding:0; margin:12px 0 0; }
   li { display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); }
+  li.meal { border-bottom:0; padding-top:12px; color:var(--accent); }
+  ul.compact li { padding:3px 0; font-size:14px; }
+  ul.cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); column-gap:24px; }
   .x { padding:0 6px; border:0; background:none; color:var(--muted); }
   fieldset { border:1px solid var(--line); border-radius:10px; margin:0 0 10px; padding:8px 10px; }
   legend { font-weight:600; padding:0 4px; }
@@ -44,6 +51,24 @@
   .days { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:10px; }
   .day { background:var(--bg); border-radius:10px; padding:4px 12px 8px; }
   .day p { margin:4px 0; font-size:13px; }
+  svg { width:100%; height:auto; margin-top:8px; }
+  svg text { fill:var(--muted); font-size:12px; }
+  svg .grid { stroke:var(--line); }
+  svg .plan { stroke:var(--plan); stroke-width:2; stroke-dasharray:6 5; }
+  svg .real { fill:none; stroke:var(--accent); stroke-width:2.5; }
+  svg .dot { fill:var(--accent); }
+  .legend { font-size:12px; color:var(--muted); margin:0; }
+  .sw { display:inline-block; width:18px; height:0; border-top:3px solid var(--accent); vertical-align:middle; margin-left:8px; }
+  .sw.plan { border-top:3px dashed var(--plan); }
+  .sub { border-top:1px solid var(--line); margin-top:16px; padding-top:4px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:right; padding:6px 4px; border-bottom:1px solid var(--line); }
+  th:first-child, td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:500; }
+  td button { padding:2px 8px; font-size:13px; }
+  .file { display:inline-flex; flex-direction:row; align-items:center; color:var(--text); font-size:15px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:var(--bg); cursor:pointer; }
+  .file input { position:absolute; opacity:0; width:1px; height:1px; }
+  .file:focus-within { outline:2px solid var(--accent); }
 </style>
 </head>
 <body>
@@ -69,30 +94,64 @@
         <label>Muốn giảm (kg) <input id="loseKg" type="number" step="0.1" min="0.1" max="100" required></label>
         <label>Trong bao nhiêu ngày <input id="days" type="number" min="1" max="1000" required></label>
       </div>
-      <div class="row"><button class="primary" type="submit">Tính calo</button></div>
+      <div class="row"><button class="primary" type="submit">Tính calo</button><span class="hint">Bấm lại sẽ bắt đầu kế hoạch mới từ hôm nay.</span></div>
     </form>
     <div id="goalOut"></div>
   </section>
 
   <section>
-    <h2>2. Hôm nay đã ăn</h2>
+    <h2>2. Cân nặng</h2>
+    <form id="weightForm" class="row" style="margin-top:0">
+      <input id="wInput" class="short" type="number" step="0.1" min="20" max="400" required aria-label="Cân nặng hôm nay (kg)">
+      <button class="primary" type="submit">Lưu cân hôm nay</button>
+    </form>
+    <div id="weightOut"></div>
+  </section>
+
+  <section id="logSection">
+    <h2>3. Nhật ký <span id="dayLabel">hôm nay</span></h2>
+    <div class="row" style="margin-top:0">
+      <input id="logDate" type="date" class="short" style="flex-basis:160px" aria-label="Chọn ngày">
+      <select id="meal" aria-label="Bữa">
+        <option>Sáng</option><option>Trưa</option><option>Phụ</option><option>Tối</option>
+      </select>
+      <button id="copyMeal" type="button">📋 Chép bữa này từ ngày trước</button>
+    </div>
     <form id="logForm" class="row">
-      <input id="entry" list="foodNames" placeholder='Ví dụ: 100g cơm, ức gà 150' autocomplete="off" aria-label="Món đã ăn">
+      <input id="entry" list="foodNames" placeholder='Ví dụ: 100g cơm, 2 chén cơm, 1 tô phở, 2 quả trứng' autocomplete="off" aria-label="Món đã ăn">
       <button class="primary" type="submit">Thêm</button>
     </form>
     <datalist id="foodNames"></datalist>
+    <p class="hint">Đơn vị hiểu được: g, chén/bát, tô, quả/trái, ổ, ly/cốc, hộp, miếng, đĩa, củ.</p>
     <p id="entryErr" class="err" role="alert"></p>
     <div id="logSummary"></div>
     <ul id="logList"></ul>
+
+    <div class="sub">
+      <h3>🏃 Tập thể dục</h3>
+      <form id="exForm" class="row" style="margin-top:0">
+        <select id="exType" aria-label="Môn tập"></select>
+        <input id="exMin" class="short" type="number" min="1" max="600" placeholder="Số phút" required aria-label="Số phút">
+        <button type="submit">+ Thêm</button>
+      </form>
+      <p class="hint">Calo đốt được cộng thêm vào phần còn được ăn. Nếu đã chọn mức vận động cao ở mục 1 thì đừng ghi trùng các buổi tập thường ngày.</p>
+      <ul id="exList"></ul>
+    </div>
   </section>
 
   <section>
-    <h2>3. Món tôi mua / ăn được</h2>
+    <h2>4. Lịch sử 14 ngày gần nhất</h2>
+    <div id="history"></div>
+  </section>
+
+  <section>
+    <h2>5. Món tôi mua / ăn được</h2>
     <p class="muted">Tick các món bạn có thể mua hoặc thích ăn (số nhỏ = kcal/100g). Thực đơn tuần sẽ dùng các món này.</p>
     <div id="foodGrid"></div>
     <form id="customForm" class="row">
       <input id="cName" placeholder="Tên món mới" required aria-label="Tên món mới">
-      <input id="cKcal" type="number" min="0" step="1" placeholder="kcal / 100g" required aria-label="kcal trên 100g" style="max-width:130px">
+      <input id="cKcal" class="short" type="number" min="0" step="1" placeholder="kcal/100g" required aria-label="kcal trên 100g">
+      <input id="cProt" class="short" type="number" min="0" step="0.1" placeholder="protein g/100g" aria-label="protein gram trên 100g">
       <select id="cCat" aria-label="Nhóm món">
         <option value="carb">Tinh bột</option><option value="protein">Đạm</option><option value="veg">Rau</option>
         <option value="fruit">Trái cây / bữa phụ</option><option value="other">Món khác</option>
@@ -102,10 +161,20 @@
   </section>
 
   <section>
-    <h2>4. Thực đơn tuần tham khảo</h2>
+    <h2>6. Thực đơn tuần tham khảo</h2>
     <div class="row" style="margin:0 0 10px"><button id="regen" type="button">🔄 Đổi thực đơn khác</button></div>
     <div id="menu" class="days"></div>
     <div id="suggest"></div>
+    <div id="shopping"></div>
+  </section>
+
+  <section>
+    <h2>7. Sao lưu dữ liệu</h2>
+    <p class="muted">Dữ liệu chỉ nằm trong trình duyệt này. Thỉnh thoảng nên tải file sao lưu về để không bị mất khi xoá dữ liệu trình duyệt hoặc đổi máy.</p>
+    <div class="row">
+      <button id="exportBtn" type="button">⬇️ Tải file sao lưu</button>
+      <label class="file">⬆️ Khôi phục từ file<input id="importFile" type="file" accept=".json,application/json"></label>
+    </div>
   </section>
 </main>
 <script src="app.js"></script>
