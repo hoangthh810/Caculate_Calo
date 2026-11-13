@@ -11,5 +11,3 @@ Mở `index.html` bằng trình duyệt là dùng được, không cần cài đ
 - Lịch sử 14 ngày, xem/sửa lại ngày cũ
 - Tick món mua/ăn được -> thực đơn 7 ngày, gợi ý món dễ mua, danh sách đi chợ
 - Sao lưu / khôi phục dữ liệu ra file JSON (không chứa API key)
-
-Test: `node test.js`
